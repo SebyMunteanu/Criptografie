@@ -1,0 +1,76 @@
+#include <iostream>
+#include <cstdlib>
+#include <ctime>
+
+using namespace std;
+
+// Functie pentru a calcula (a^b) % mod folosind exponentierea rapida
+long long power(long long a, long long b, long long mod) {
+    long long result = 1;
+    a = a % mod;
+    while (b > 0) {
+        if (b % 2 == 1)
+            result = (result * a) % mod;
+        b = b >> 1;
+        a = (a * a) % mod;
+    }
+    return result;
+}
+
+// Functie pentru a calcula Jacobi symbol (a/n)
+int jacobi(long long a, long long n) {
+    if (a == 0)
+        return 0;
+    int result = 1;
+    if (a < 0) {
+        a = -a;
+        if (n % 4 == 3)
+            result = -result;
+    }
+    while (a != 0) {
+        while (a % 2 == 0) {
+            a /= 2;
+            if (n % 8 == 3 || n % 8 == 5)
+                result = -result;
+        }
+        swap(a, n);
+        if (a % 4 == 3 && n % 4 == 3)
+            result = -result;
+        a %= n;
+    }
+    return (n == 1) ? result : 0;
+}
+
+// Functie pentru testul Solovay-Strassen
+bool solovayStrassen(long long n, int iterations) {
+    if (n < 2)
+        return false;
+    if (n != 2 && n % 2 == 0)
+        return false;
+
+    srand(time(0));
+    for (int i = 0; i < iterations; i++) {
+        long long a = rand() % (n - 1) + 1;
+        long long x = jacobi(a, n);
+        if (x == 0 || power(a, (n - 1) / 2, n) != (x + n) % n)
+            return false;
+    }
+    return true;
+}
+
+int main() {
+    long long num;
+    int iterations;
+
+    cout << "Introduceti numarul pe care doriti sa-l testati: ";
+    cin >> num;
+    cout << "Introduceti numarul de iteratii: ";
+    cin >> iterations;
+
+    if (solovayStrassen(num, iterations))
+        cout << num << " este probabil prim." << endl;
+    else
+        cout << num << " nu este prim." << endl;
+
+    return 0;
+}
