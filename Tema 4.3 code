@@ -1,0 +1,38 @@
+#include <iostream>
+#include <cmath>
+
+using namespace std;
+
+// Functie care returneaza cel mai mic divizor al unui numar folosind algoritmul Fermat
+pair<long long, long long> fermatFactorization(long long N) {
+    long long a = ceil(sqrt(N));
+    long long b2 = a * a - N;
+    long long b;
+
+    while (true) {
+        b = sqrt(b2);
+        if (b * b == b2) {
+            break; // Am gasit b-ul corect
+        }
+        a++;
+        b2 = a * a - N;
+    }
+
+    return make_pair(a - b, a + b);
+}
+
+int main() {
+    long long N;
+    cout << "Introduceti un numar impar pentru factorizare: ";
+    cin >> N;
+
+    if (N % 2 == 0) {
+        cout << "Numarul trebuie sa fie impar." << endl;
+        return 1;
+    }
+
+    pair<long long, long long> factors = fermatFactorization(N);
+    cout << "Factorii lui " << N << " sunt: " << factors.first << " si " << factors.second << endl;
+
+    return 0;
+}
