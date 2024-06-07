@@ -1,0 +1,112 @@
+#include <iostream>
+#include <vector>
+#include <cstdlib>
+#include <ctime>
+#include <bitset>
+
+using namespace std;
+
+// Functie pentru a genera o cheie supercreștină
+vector<int> generateSuperincreasingKnapsack(int n) {
+    vector<int> knapsack;
+    int sum = 0;
+    srand(time(NULL));
+
+    for (int i = 0; i < n; ++i) {
+        int random = rand() % 10 + sum + 1;
+        knapsack.push_back(random);
+        sum += random;
+    }
+
+    return knapsack;
+}
+
+// Functie pentru a genera cheia privată și publică
+pair<vector<int>, vector<int>> generateKeys(int n) {
+    vector<int> private_key = generateSuperincreasingKnapsack(n);
+    vector<int> public_key;
+
+    int q = rand() % 100 + 100; // Număr aleatoriu între 100 și 199 pentru a genera q
+    int r = rand() % 100 + 1;   // Număr aleatoriu între 1 și 100 pentru a genera r
+
+    for (int i = 0; i < n; ++i) {
+        public_key.push_back((private_key[i] * r) % q);
+    }
+
+    return make_pair(private_key, public_key);
+}
+
+// Functie pentru a cripta un mesaj folosind cheia publică
+vector<int> encrypt(const string& message, const vector<int>& public_key) {
+    vector<int> ciphertext;
+
+    for (char c : message) {
+        bitset<8> bits(c);
+        for (int i = 7; i >= 0; --i) {
+            ciphertext.push_back(public_key[i] * bits[i]);
+        }
+    }
+
+    return ciphertext;
+}
+
+// Functie pentru a decripta un mesaj folosind cheia privată
+string decrypt(const vector<int>& ciphertext, const vector<int>& private_key, int q, int r) {
+    string plaintext;
+    int inv_r = 0;
+
+    // Calcularea inversului modular al lui r
+    for (int i = 0; i < q; ++i) {
+        if ((r * i) % q == 1) {
+            inv_r = i;
+            break;
+        }
+    }
+
+    int sum = 0;
+    for (int i = 0; i < ciphertext.size(); ++i) {
+        sum += ciphertext[i] * private_key[i % private_key.size()];
+        if ((i + 1) % 8 == 0) {
+            plaintext += (char)((sum * inv_r) % q);
+            sum = 0;
+        }
+    }
+
+    return plaintext;
+}
+
+int main() {
+    int n = 8; // Numărul de elemente din cheie
+    string message = "HELLO"; // Mesajul de criptat
+
+    // Generare chei
+    pair<vector<int>, vector<int>> keys = generateKeys(n);
+    vector<int> private_key = keys.first;
+    vector<int> public_key = keys.second;
+
+    cout << "Cheia privata: ";
+    for (int key : private_key) {
+        cout << key << " ";
+    }
+    cout << endl;
+
+    cout << "Cheia publica: ";
+    for (int key : public_key) {
+        cout << key << " ";
+    }
+    cout << endl;
+
+    // Criptare
+    vector<int> ciphertext = encrypt(message, public_key);
+    cout << "Text criptat: ";
+    for (int cipher : ciphertext) {
+        cout << cipher << " ";
+    }
+    cout << endl;
+
+    // Decriptare
+    string decrypted_message = decrypt(ciphertext, private_key, 103, 29); // Se specifică q și r pentru a simplifica exemplul
+    cout << "Text decriptat: " << decrypted_message << endl;
+
+    return 0;
+}
