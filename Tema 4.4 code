@@ -1,0 +1,95 @@
+#include <iostream>
+#include <vector>
+#include <cmath>
+#include <map>
+#include <algorithm>
+
+using namespace std;
+
+// Funcție pentru a determina cel mai mic divizor comun între două numere
+long long gcd(long long a, long long b) {
+    while (b != 0) {
+        long long temp = b;
+        b = a % b;
+        a = temp;
+    }
+    return a;
+}
+
+// Funcție pentru a efectua exponențierea modulară (a^b mod n)
+long long modPow(long long base, long long exponent, long long modulus) {
+    long long result = 1;
+    base %= modulus;
+    while (exponent > 0) {
+        if (exponent % 2 == 1)
+            result = (result * base) % modulus;
+        base = (base * base) % modulus;
+        exponent /= 2;
+    }
+    return result;
+}
+
+// Funcție pentru a efectua factorizarea quadratică
+long long quadraticSieve(long long n) {
+    // Pas 1: Determinăm valoarea lui m și a
+    long long m = sqrt(n) + 1;
+    long long a = m;
+    
+    // Pas 2: Alegem o valoare de p care să fie aproape de radical din n
+    // Folosind o abordare brute-force aici
+    long long p = 2;
+    while (gcd(n, p) != 1)
+        p++;
+    
+    // Pas 3: Calculăm lista de numere prime p pentru care (a^2 - n) este un p-puternic rezidual
+    vector<long long> primes;
+    vector<long long> residues;
+    for (long long i = 0; i < m; ++i) {
+        long long x = (a + i) * (a + i) - n;
+        x %= p;
+        if (x < 0) x += p;
+        primes.push_back(p);
+        residues.push_back(x);
+    }
+    
+    // Pas 4: Cautăm o submulțime a primes și residues care să satisfacă condițiile algoritmului
+    map<long long, long long> factors;
+    for (long long i = 0; i < primes.size(); ++i) {
+        long long x = primes[i];
+        while (x % 2 == 0) {
+            x /= 2;
+            factors[2]++;
+        }
+        long long r = residues[i];
+        long long y = modPow(r, (p - 1) / 2, p);
+        if (y == 1) {
+            factors[gcd(n, (a + i))]++; // Am găsit o corelație între numere
+        }
+    }
+    
+    // Pas 5: Întoarcem unul dintre factorii primi
+    for (const auto& factor : factors) {
+        if (factor.second % 2 != 0) {
+            return factor.first;
+        }
+    }
+    
+    // Dacă nu găsim un factor, returnăm -1
+    return -1;
+}
+
+int main() {
+    long long numar;
+    cout << "Introduceti numarul pentru factorizare: ";
+    cin >> numar;
+
+    long long factor = quadraticSieve(numar);
+    if (factor == -1) {
+        cout << "Nu am putut gasi factori primi." << endl;
+    } else {
+        cout << "Factorul gasit este: " << factor << endl;
+        cout << "Al doilea factor este: " << numar / factor << endl;
+    }
+
+    return 0;
+}
