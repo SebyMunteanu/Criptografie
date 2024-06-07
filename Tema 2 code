@@ -1,0 +1,77 @@
+#include <iostream>
+#include <string>
+#include <algorithm>
+#include <cmath>
+
+using namespace std;
+
+// Functie pentru a converti un caracter la valoarea sa numerica
+int charToValue(char c) {
+    if (c >= '0' && c <= '9')
+        return c - '0';
+    if (c >= 'A' && c <= 'Z')
+        return c - 'A' + 10;
+    return -1;
+}
+
+// Functie pentru a converti o valoare numerica intr-un caracter
+char valueToChar(int value) {
+    if (value >= 0 && value <= 9)
+        return value + '0';
+    if (value >= 10 && value <= 35)
+        return value - 10 + 'A';
+    return '?';
+}
+
+// Functie pentru a converti un numar din baza b1 la baza 10
+long long convertToBase10(const string& num, int base) {
+    long long value = 0;
+    for (char c : num) {
+        value = value * base + charToValue(c);
+    }
+    return value;
+}
+
+// Functie pentru a converti un numar din baza 10 la baza b2
+string convertFromBase10(long long num, int base) {
+    string result;
+    do {
+        int remainder = num % base;
+        result += valueToChar(remainder);
+        num /= base;
+    } while (num > 0);
+    reverse(result.begin(), result.end());
+    return result;
+}
+
+// Functie principala pentru a converti un numar intre doua baze
+string convertBase(const string& num, int b1, int b2) {
+    long long base10 = convertToBase10(num, b1);
+    return convertFromBase10(base10, b2);
+}
+
+int main() {
+    string num;
+    int b1, b2;
+
+    cout << "Introduceti numarul: ";
+    cin >> num;
+    cout << "Introduceti baza initiala (b1): ";
+    cin >> b1;
+    cout << "Introduceti baza finala (b2): ";
+    cin >> b2;
+
+    if (b1 < 2 || b1 > 26 || b2 < 2 || b2 > 26) {
+        cout << "Bazele trebuie sa fie intre 2 si 26." << endl;
+        return 1;
+    }
+
+    try {
+        string result = convertBase(num, b1, b2);
+        cout << "Numarul in baza " << b1 << " (" << num << ") este echivalent cu numarul in baza " << b2 << " (" << result << ")." << endl;
+    } catch (const exception& e) {
+        cout << "A aparut o eroare: " << e.what() << endl;
+    }
+
+    return 0;
+}
