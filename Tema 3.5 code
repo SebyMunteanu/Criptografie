@@ -1,0 +1,51 @@
+#include <iostream>
+
+using namespace std;
+
+// Functie pentru a calcula simbolul lui Jacobi (a/n)
+int jacobiSymbol(int a, int n) {
+    if (n <= 0 || n % 2 == 0) {
+        return 0; // n trebuie sa fie un numar impar pozitiv
+    }
+    
+    int result = 1;
+    
+    // Reduce a modulo n
+    a = a % n;
+    while (a != 0) {
+        while (a % 2 == 0) {
+            a /= 2;
+            int n_mod_8 = n % 8;
+            if (n_mod_8 == 3 || n_mod_8 == 5) {
+                result = -result;
+            }
+        }
+        swap(a, n);
+        if (a % 4 == 3 && n % 4 == 3) {
+            result = -result;
+        }
+        a = a % n;
+    }
+    
+    if (n == 1) {
+        return result;
+    } else {
+        return 0;
+    }
+}
+
+int main() {
+    int a, n;
+
+    // Exemplu
+    cout << "Introduceti a: ";
+    cin >> a;
+    cout << "Introduceti n (trebuie sa fie impar si pozitiv): ";
+    cin >> n;
+
+    int result = jacobiSymbol(a, n);
+
+    cout << "Simbolul lui Jacobi (" << a << "/" << n << ") este " << result << endl;
+
+    return 0;
+}
