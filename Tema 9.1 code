@@ -1,0 +1,95 @@
+#include <iostream>
+#include <cmath>
+
+using namespace std;
+
+// Functie pentru a verifica daca un numar este prim
+bool isPrime(int n) {
+    if (n <= 1)
+        return false;
+    if (n <= 3)
+        return true;
+    if (n % 2 == 0 || n % 3 == 0)
+        return false;
+    for (int i = 5; i * i <= n; i = i + 6)
+        if (n % i == 0 || n % (i + 2) == 0)
+            return false;
+    return true;
+}
+
+// Functie pentru a genera doua numere prime mari
+pair<int, int> generateLargePrimes() {
+    int p, q;
+    do {
+        p = rand() % 1000 + 1000; // Generam un numar prim mai mare
+    } while (!isPrime(p));
+
+    do {
+        q = rand() % 1000 + 1000; // Generam un alt numar prim mai mare
+    } while (!isPrime(q));
+
+    return make_pair(p, q);
+}
+
+// Functie pentru a calcula inversul modular al unui numar
+int modInverse(int a, int m) {
+    int m0 = m, t, q;
+    int x0 = 0, x1 = 1;
+    if (m == 1)
+        return 0;
+    while (a > 1) {
+        // q este catul
+        q = a / m;
+        t = m;
+        // m este restul
+        m = a % m, a = t;
+        t = x0;
+        // Actualizam x0 cu x1 - q * x0
+        x0 = x1 - q * x0;
+        x1 = t;
+    }
+    // Facem x1 pozitiv
+    if (x1 < 0)
+        x1 += m0;
+    return x1;
+}
+
+// Functie pentru a cripta un mesaj
+int encrypt(int msg, int n) {
+    return (msg * msg) % n;
+}
+
+// Functie pentru a decripta un mesaj
+int decrypt(int c, int p, int q) {
+    int m1 = (int)fmod(pow(c, (p + 1) / 4), p);
+    int m2 = (int)fmod(pow(c, (q + 1) / 4), q);
+    int y_p = modInverse(p, q);
+    int y_q = modInverse(q, p);
+    int d1 = (y_p * q * m2 + y_q * p * m1) % (p * q);
+    int d2 = n - d1;
+    return d1;
+}
+
+int main() {
+    srand(time(NULL));
+
+    // Generam doua numere prime mari
+    pair<int, int> primes = generateLargePrimes();
+    int p = primes.first;
+    int q = primes.second;
+    int n = p * q; // Cheia publica
+
+    int msg;
+    cout << "Introduceti mesajul de criptat: ";
+    cin >> msg;
+
+    // Criptam mesajul
+    int encrypted = encrypt(msg, n);
+    cout << "Mesajul criptat: " << encrypted << endl;
+
+    // Decriptam mesajul
+    int decrypted = decrypt(encrypted, p, q);
+    cout << "Mesajul decriptat: " << decrypted << endl;
+
+    return 0;
+}
