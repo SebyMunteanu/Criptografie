@@ -1,0 +1,81 @@
+#include <iostream>
+#include <vector>
+#include <cmath>
+#include <algorithm>
+
+using namespace std;
+
+// Functie pentru a calcula puterea ridicata la un modul
+long long modPow(long long base, long long exp, long long mod) {
+    long long result = 1;
+    while (exp > 0) {
+        if (exp % 2 == 1) {
+            result = (result * base) % mod;
+        }
+        base = (base * base) % mod;
+        exp /= 2;
+    }
+    return result;
+}
+
+// Functie pentru a calcula combinari (binomial coefficients)
+long long binomialCoeff(long long n, long long k) {
+    long long res = 1;
+    if (k > n - k) {
+        k = n - k;
+    }
+    for (long long i = 0; i < k; ++i) {
+        res *= (n - i);
+        res /= (i + 1);
+    }
+    return res;
+}
+
+// Functie pentru a calcula gcd folosind algoritmul Euclid
+long long gcd(long long a, long long b) {
+    while (b != 0) {
+        long long t = b;
+        b = a % b;
+        a = t;
+    }
+    return a;
+}
+
+// Functie pentru a verifica daca un numar este prim folosind algoritmul AKS
+bool isPrimeAKS(long long n) {
+    if (n <= 1) return false;
+    if (n <= 3) return true;
+    if (n % 2 == 0 || n % 3 == 0) return false;
+
+    long long r = 1;
+    while (true) {
+        if (pow(log(n), 2) <= r * (r - 1)) break;
+        r++;
+    }
+
+    for (long long a = 2; a <= min(r, n - 1); a++) {
+        if (gcd(a, n) > 1) return false;
+    }
+
+    if (n <= r) return true;
+
+    for (long long a = 1; a <= r; a++) {
+        if (modPow(a, n, n) != a % n) return false;
+    }
+
+    return true;
+}
+
+int main() {
+    long long num;
+    cout << "Introduceti numarul pentru testare primalitate: ";
+    cin >> num;
+
+    if (isPrimeAKS(num)) {
+        cout << num << " este un numar prim." << endl;
+    } else {
+        cout << num << " nu este un numar prim." << endl;
+    }
+
+    return 0;
+}
